@@ -24,6 +24,8 @@
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
 
+#include "Enemy/PlaneEnemy.hpp"
+
 // TODO HACKATHON-4 (1/3): Trace how the game handles keyboard input.
 // TODO HACKATHON-4 (2/3): Find the cheat code sequence in this file.
 // TODO HACKATHON-4 (3/3): When the cheat code is entered, a plane should be spawned and added to the scene.
@@ -161,8 +163,9 @@ void PlayScene::Update(float deltaTime) {
                 EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
                 break;
             // TODO HACKATHON-3 (2/3): Add your new enemy here.
-            // case 2:
-            //     ...
+            case 2:
+                EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+                break;
             case 3:
                 EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
                 break;
