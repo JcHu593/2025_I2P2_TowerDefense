@@ -39,11 +39,13 @@ const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
 const Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
+// slightly mpdified the ALLEGRO_KEYMOD_SHIFT part to ALLEGRO_KEY_LSHIFT
 const std::vector<int> PlayScene::code = {
     ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
     ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT,
-    ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEYMOD_SHIFT, ALLEGRO_KEY_ENTER
+    ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEY_LSHIFT, ALLEGRO_KEY_ENTER
 };
+int codeIdx = 0;    // record how many matched cheatcode keys pressed
 Engine::Point PlayScene::GetClientSize() {
     return Engine::Point(MapWidth * BlockSize, MapHeight * BlockSize);
 }
@@ -259,6 +261,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 }
 void PlayScene::OnKeyDown(int keyCode) {
     IScene::OnKeyDown(keyCode);
+    // determin whether to record key
     if (keyCode == ALLEGRO_KEY_TAB) {
         DebugMode = !DebugMode;
     } else {
@@ -266,12 +269,37 @@ void PlayScene::OnKeyDown(int keyCode) {
         if (keyStrokes.size() > code.size())
             keyStrokes.pop_front();
     }
+
+    // determine which key
     if (keyCode == ALLEGRO_KEY_Q) {
         // Hotkey for MachineGunTurret.
         UIBtnClicked(0);
     } else if (keyCode == ALLEGRO_KEY_W) {
         // Hotkey for LaserTurret.
         UIBtnClicked(1);
+    }
+    // cheatcode related keys
+    else if(
+        keyCode == ALLEGRO_KEY_UP || keyCode == ALLEGRO_KEY_DOWN ||
+        keyCode == ALLEGRO_KEY_LEFT || keyCode == ALLEGRO_KEY_RIGHT ||
+        keyCode == ALLEGRO_KEY_B || keyCode == ALLEGRO_KEY_A ||
+        keyCode == ALLEGRO_KEY_LSHIFT || keyCode == ALLEGRO_KEY_ENTER
+    ){
+        if(keyCode == code[codeIdx]){
+            ++codeIdx;
+            if(codeIdx == code.size()){
+                // spawn a plane
+                Plane *plane = new Plane();
+                plane->Position = Engine::Point(0, MapHeight * BlockSize / 2);
+                UIGroup->AddNewObject(plane);
+                EarnMoney(10000);
+                codeIdx = 0;
+            }
+        }
+        else{
+            // if: {up up up ...} -> {up up} -> idx = 2
+            codeIdx = (keyCode == ALLEGRO_KEY_UP)? 2 : 0;
+        }
     }
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
