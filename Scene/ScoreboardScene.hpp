@@ -3,13 +3,15 @@
 #include <allegro5/allegro_audio.h>
 #include <memory>
 #include <vector>
+#include <string>
+#include <utility>
 
 #include "Engine/IScene.hpp"
 
 class ScoreboardScene final : public Engine::IScene {
 private:
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> bgmInstance;
-    std::vector<std::string> records;
+    std::vector<std::pair<std::string, int>> records;
     const int pageLimit = 5;
     int curPage = 0;
 
@@ -20,6 +22,7 @@ public:
     void NextPageOnClick(int stage);
     void PrevPageOnClick(int stage);
     void BackOnClick(int stage);
+    void SortRecords();
 };
 
 #endif

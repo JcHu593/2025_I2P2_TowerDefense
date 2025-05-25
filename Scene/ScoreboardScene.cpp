@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <sstream>
+#include <utility>
 
 #include "Engine/GameEngine.hpp"
 #include "Engine/Point.hpp"
@@ -30,10 +32,17 @@ void ScoreboardScene::Initialize() {
     if(fi.is_open()){
         std::string line;
         while (std::getline(fi, line)) {
-            records.push_back(line);
-            Engine::LOG(Engine::DEBUGGING) << "read line: " << line;
+            // <name> <score>
+            std::istringstream iss(line);
+            std::string name;
+            int score;
+            if (iss >> name >> score) {
+                records.push_back(std::make_pair(name, score));
+                Engine::LOG(Engine::DEBUGGING) << "read line: " << name << " " << score;
+            }
         }
         fi.close();
+        SortRecords();
     }
     else{
         Engine::LOG(Engine::ERROR) << "failed to open scoreboard file";
@@ -43,7 +52,8 @@ void ScoreboardScene::Initialize() {
     int start = curPage * pageLimit;
     int end = (start + pageLimit > records.size()) ? records.size() : start + pageLimit;
     for(int i = start; i < end; ++i){
-        AddNewObject(new Engine::Label(records[i], "pirulen.ttf", 32, halfW, yOffset + (i - start) * 40, 0, 250, 0, 255, 0.5, 0.5));
+        AddNewObject(new Engine::Label(records[i].first, "pirulen.ttf", 32, halfW - 100, yOffset + (i - start) * 40, 0, 250, 0, 255, 0.5, 0.5));
+        AddNewObject(new Engine::Label(std::to_string(records[i].second), "pirulen.ttf", 32, halfW + 200, yOffset + (i - start) * 40, 0, 250, 0, 255, 0.5, 0.5));
     }
     if(records.empty()){
         AddNewObject(new Engine::Label("no scoreboard data.", "pirulen.ttf", 32, halfW, halfH, 255, 0, 0, 255, 0.5, 0.5));
@@ -92,4 +102,9 @@ void ScoreboardScene::PrevPageOnClick(int stage) {
         --curPage;
         Engine::GameEngine::GetInstance().ChangeScene("scoreboard");
     }
+}
+void ScoreboardScene::SortRecords(){
+    std::sort(records.begin(), records.end(), [](const auto& a, const auto& b){
+        return a.second > b.second; // sort by score in descending order
+    });
 }
