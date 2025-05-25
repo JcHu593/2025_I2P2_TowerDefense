@@ -30,12 +30,18 @@ void StageSelectScene::Initialize() {
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Stage 2", "pirulen.ttf", 48, halfW, halfH / 2 + 150, 0, 0, 0, 255, 0.5, 0.5));
 
+    // scoreboard button
+    btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH / 2 + 250, 400, 100);
+    btn->SetOnClickCallback(std::bind(&StageSelectScene::ScoreboardOnClick, this));
+    AddNewControlObject(btn);
+    AddNewObject(new Engine::Label("Scoreboard", "pirulen.ttf", 40, halfW, halfH / 2 + 300, 0, 0, 0, 255, 0.5, 0.5));
+
     // back button
     // halfH * 3 / 2 -> bottom half of screen
-    btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
+    btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH / 2 + 400, 400, 100);
     btn->SetOnClickCallback(std::bind(&StageSelectScene::BackOnClick, this, 1));
     AddNewControlObject(btn);
-    AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH / 2 + 450, 0, 0, 0, 255, 0.5, 0.5));
 
     // Not safe if release resource while playing, however we only free while change scene, so it's fine.
     bgmInstance = AudioHelper::PlaySample("select.ogg", true, AudioHelper::BGMVolume);
@@ -54,7 +60,7 @@ void StageSelectScene::PlayOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("play");
 }
 void StageSelectScene::ScoreboardOnClick() {
-    Engine::GameEngine::GetInstance().ChangeScene("scoreboard-scene");
+    Engine::GameEngine::GetInstance().ChangeScene("scoreboard");
 }
 void StageSelectScene::BGMSlideOnValueChanged(float value) {
     AudioHelper::ChangeSampleVolume(bgmInstance, value);
