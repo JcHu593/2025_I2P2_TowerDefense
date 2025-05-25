@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 
-#include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Point.hpp"
 #include "Engine/Resources.hpp"
@@ -24,19 +23,20 @@ void ScoreboardScene::Initialize() {
     // title
     AddNewObject(new Engine::Label("Scoreboard", "pirulen.ttf", 48, halfW, halfH / 2 - 100, 0, 250, 0, 255, 0.5, 0.5));
     // read data to vector
-    if(records.empty()) {
-        std::ifstream fi("Resource/scoreboard.txt");
-        if(fi.is_open()){
-            std::string line;
-            while (std::getline(fi, line)) {
-                records.push_back(line);
-                Engine::LOG(Engine::DEBUGGING) << "read line: " << line;
-            }
-            fi.close();
+    if(!records.empty()) {
+        records.clear();
+    }
+    std::ifstream fi("Resource/scoreboard.txt");
+    if(fi.is_open()){
+        std::string line;
+        while (std::getline(fi, line)) {
+            records.push_back(line);
+            Engine::LOG(Engine::DEBUGGING) << "read line: " << line;
         }
-        else{
-            Engine::LOG(Engine::ERROR) << "failed to open scoreboard file";
-        }
+        fi.close();
+    }
+    else{
+        Engine::LOG(Engine::ERROR) << "failed to open scoreboard file";
     }
     int yOffset = halfH / 2 + 50;
     // min and max index of the records on this page
@@ -72,15 +72,12 @@ void ScoreboardScene::Initialize() {
         AddNewControlObject(btn);
         AddNewObject(new Engine::Label("Next Page", "pirulen.ttf", 40, halfW + 450, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
     }
-
-    bgmInstance = AudioHelper::PlaySample("select.ogg", true, AudioHelper::BGMVolume);
 }
 void ScoreboardScene::Terminate() {
-    AudioHelper::StopSample(bgmInstance);
-    bgmInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
     IScene::Terminate();
 }
 void ScoreboardScene::BackOnClick(int stage) {
+    curPage = 0;
     Engine::GameEngine::GetInstance().ChangeScene("stage-select");
 }
 void ScoreboardScene::NextPageOnClick(int stage) {
