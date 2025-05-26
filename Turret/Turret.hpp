@@ -22,6 +22,7 @@ protected:
     virtual void CreateBullet() = 0;
 
 public:
+    float hp = 60;
     bool Enabled = true;
     bool Preview = false;
     Enemy *Target = nullptr;
@@ -29,5 +30,6 @@ public:
     void Update(float deltaTime) override;
     void Draw() const override;
     int GetPrice() const;
+    virtual void Hit(float damage);
 };
 #endif   // TURRET_HPP

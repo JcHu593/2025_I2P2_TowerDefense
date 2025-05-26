@@ -86,3 +86,11 @@ void Turret::Draw() const {
 int Turret::GetPrice() const {
     return price;
 }
+void Turret::Hit(float damage) {
+    hp -= damage;
+    if (hp <= 0) {
+        Enabled = false;
+        PlayScene *scene = getPlayScene();
+        scene->TowerGroup->RemoveObject(GetObjectIterator());
+    }
+}

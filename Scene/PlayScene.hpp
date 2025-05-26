@@ -83,5 +83,7 @@ public:
     std::vector<std::vector<int>> CalculateBFSDistance();
     // void ModifyReadMapTiles();
     int GetLives() const;
+    bool shovelOn = false;
+    Engine::Sprite *shovelImg = nullptr;
 };
 #endif   // PLAYSCENE_HPP
