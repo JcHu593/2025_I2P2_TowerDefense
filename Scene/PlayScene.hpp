@@ -82,5 +82,6 @@ public:
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance();
     // void ModifyReadMapTiles();
+    int GetLives() const;
 };
 #endif   // PLAYSCENE_HPP

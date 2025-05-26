@@ -475,3 +475,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     }
     return map;
 }
+
+int PlayScene::GetLives() const{
+    return lives;
+}

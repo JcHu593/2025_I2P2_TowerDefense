@@ -1,6 +1,7 @@
 #include <functional>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
@@ -18,12 +19,16 @@ void WinScene::Initialize() {
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
     int halfH = h / 2;
+    PlayScene *playScene = dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"));
+    score = playScene->GetMoney() / 5 + playScene->GetLives() * 5;
+
     AddNewObject(new Engine::Image("win/benjamin-sad.png", halfW, halfH+50, 300, 300, 0.5, 0.5));
     AddNewObject(new Engine::Label("You Win!", "pirulen.ttf", 48, halfW, halfH / 4 - 10, 255, 255, 255, 255, 0.5, 0.5));
 
-    AddNewObject(new Engine::Label("Enter your name to be saved into scoreboard: ", "pirulen.ttf", 28, halfW, halfH / 4 + 90, 255, 255, 255, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Your Score: " + std::to_string(score), "pirulen.ttf", 28, halfW, halfH / 4 + 50, 0, 250, 0, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Enter your name to be saved into scoreboard: ", "pirulen.ttf", 28, halfW, halfH / 4 + 100, 255, 255, 255, 255, 0.5, 0.5));
     // display user input (input is handled in OnKeyDown)
-    input = new Engine::Label(playerName, "pirulen.ttf", 28, halfW, halfH / 4 + 140, 0, 250, 0, 255, 0.5, 0.5);
+    input = new Engine::Label(playerName, "pirulen.ttf", 28, halfW, halfH / 4 + 150, 0, 250, 0, 255, 0.5, 0.5);
     AddNewObject(input);
     
     Engine::ImageButton *btn;
@@ -46,7 +51,7 @@ void WinScene::Update(float deltaTime) {
     }
 }
 void WinScene::BackOnClick(int stage) {
-    if(playerName != ""){
+    if(playerName != "" && score != SCORENOTINITIALIZED){
         /* Note:
             when the path is `Resource/scoreboard.txt` it will access the file in build/
             write to both build file and actual file
@@ -55,17 +60,18 @@ void WinScene::BackOnClick(int stage) {
         */
         std::ofstream fo("../Resource/scoreboard.txt", std::ios::app);      // root dir file
         std::ofstream fo_build("Resource/scoreboard.txt", std::ios::app);   // build dir file
+        std::string date = GetDataTime();
         if(fo.is_open()){
-            fo << playerName << std::endl;
-            Engine::LOG(Engine::INFO) << "player name " << playerName << " written to scoreboard";
+            fo << date << ' ' << playerName << ' ' << score << std::endl;
+            Engine::LOG(Engine::INFO) << '"' << date << ' ' << playerName << ' ' << score << '"' << " written to scoreboard";
             fo.close();
         }
         else{
             Engine::LOG(Engine::ERROR) << "failed to open scoreboard file";
         }
         if(fo_build.is_open()){
-            fo_build << playerName << std::endl;
-            Engine::LOG(Engine::INFO) << "player name " << playerName << " written to scoreboard in build";
+            fo << date << ' ' << playerName << ' ' << score << std::endl;
+            Engine::LOG(Engine::INFO) << '"' << date << ' ' << playerName << ' ' << score << '"' << " written to scoreboard in build dir";
             fo_build.close();
         }
         else{
@@ -94,4 +100,12 @@ void WinScene::OnKeyDown(int keyCode){
     }
     Engine::LOG(Engine::DEBUGGING) << "playerName: " << playerName;
     input->Text = playerName;
+}
+
+std::string WinScene::GetDataTime() const{
+    std::time_t now = std::time(nullptr);
+    std::tm *ltm = std::localtime(&now);
+    std::ostringstream oss;
+    oss << std::put_time(ltm, "%Y-%m-%d_%H:%M:%S");
+    return oss.str();
 }

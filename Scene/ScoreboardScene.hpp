@@ -4,14 +4,14 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <utility>
+#include <tuple>
 
 #include "Engine/IScene.hpp"
 
 class ScoreboardScene final : public Engine::IScene {
 private:
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> bgmInstance;
-    std::vector<std::pair<std::string, int>> records;
+    std::vector<std::tuple<std::string, std::string, int>> records; // data, name, score
     const int pageLimit = 5;
     int curPage = 0;
 
